@@ -2,13 +2,14 @@ import csv
 from collections import defaultdict
 from datetime import datetime as dt
 
-from pep_parse.settings import BASE_DIR, DIR_OUTPUT
-from pep_parse.constants import (
+from pep_parse.settings import (
+    BASE_DIR,
+    DIR_OUTPUT,
     FIELDS_NAME,
     DT_FORMAT,
     FILE_NAME,
     TOTAL,
-    TABLE_STATUS
+    TABLE_STATUS,
 )
 
 
@@ -22,13 +23,14 @@ class PepParsePipeline:
         return item
 
     def close_spider(self, spider):
-        time = dt.now().strftime(DT_FORMAT)
-        path = BASE_DIR / DIR_OUTPUT / FILE_NAME.format(time=time)
-
-        with open(path, mode='w', encoding='utf-8') as csvfile:
-            writer = csv.writer(csvfile)
-            writer.writerow(FIELDS_NAME)
-            writer.writerows(self.status_count.items())
-
-            total = sum(self.status_count.values())
-            writer.writerow([TOTAL, total])
+        with open(
+            BASE_DIR / DIR_OUTPUT / FILE_NAME.format(
+                time=dt.now().strftime(DT_FORMAT)),
+            mode='w',
+            encoding='utf-8'
+        ) as csvfile:
+            csv.writer(csvfile, dialect=csv.unix_dialect).writerows([
+                FIELDS_NAME,
+                *(self.status_count.items()),
+                [TOTAL, sum(self.status_count.values())]
+            ])

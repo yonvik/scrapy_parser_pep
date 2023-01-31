@@ -3,15 +3,16 @@ import re
 import scrapy
 
 from pep_parse.items import PepParseItem
-from pep_parse.constants import (
+from pep_parse.settings import (
     TABLE_NAME,
     TABLE_NUMBER,
     TABLE_STATUS,
     NAME_SPIDER,
     DOMAINS_SPIDER_PEP,
     SPIDER_URL,
-    PEP_PATTERN
 )
+
+PATTERN = r'PEP (?P<number>\d+) \S (?P<name>.+) \| peps\.python\.org'
 
 
 class PepSpider(scrapy.Spider):
@@ -27,7 +28,7 @@ class PepSpider(scrapy.Spider):
 
     def parse_pep(self, response):
         title = re.match(
-            PEP_PATTERN,
+            PATTERN,
             response.xpath("//title/text()").get()
         )
         yield PepParseItem(
